@@ -6,7 +6,6 @@ type Props = {
   initialEmail?: string;
   submitting?: boolean;
   onSubmit: (data: CommentData) => void;
-  onCancel: () => void;
 };
 
 export const NewCommentForm: React.FC<Props> = ({
@@ -73,7 +72,6 @@ export const NewCommentForm: React.FC<Props> = ({
             className={`input ${hasError.name ? 'is-danger' : ''}`}
             value={name}
             onChange={e => setName(e.target.value)}
-            onBlur={() => setTouched(t => ({ ...t, name: true }))}
           />
 
           <span className="icon is-small is-left">
@@ -111,7 +109,6 @@ export const NewCommentForm: React.FC<Props> = ({
             className={`input ${hasError.email ? 'is-danger' : ''}`}
             value={email}
             onChange={e => setEmail(e.target.value)}
-            onBlur={() => setTouched(t => ({ ...t, email: true }))}
           />
 
           <span className="icon is-small is-left">
@@ -148,7 +145,6 @@ export const NewCommentForm: React.FC<Props> = ({
             className={`textarea ${hasError.body ? 'is-danger' : ''}`}
             value={body}
             onChange={e => setBody(e.target.value)}
-            onBlur={() => setTouched(t => ({ ...t, body: true }))}
           />
         </div>
 

@@ -7,7 +7,6 @@ import { client } from '../utils/fetchClient';
 
 type Props = {
   post: Post;
-  onClose: () => void;
 };
 
 export const PostDetails: React.FC<Props> = ({ post }) => {
@@ -36,7 +35,8 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
   }, [post]);
 
   const handleDelete = (id: number) => {
-    // optimistic update with rollback on failure
+    // reset error and optimistic update with rollback on failure
+    setError(false);
     const prev = comments;
 
     setComments(previousComments =>
@@ -53,6 +53,8 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
   };
 
   const handleAdd = (data: CommentData) => {
+    // reset error for a fresh attempt
+    setError(false);
     setSubmitting(true);
 
     client
@@ -144,7 +146,6 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
                   initialEmail=""
                   submitting={submitting}
                   onSubmit={handleAdd}
-                  onCancel={() => setShowForm(false)}
                 />
               )}
             </div>
