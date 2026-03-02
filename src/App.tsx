@@ -19,39 +19,30 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    function onUserSelected(e: Event) {
-      const custom = e as CustomEvent<User>;
-      const user = custom.detail as User;
-
-      setSelectedUser(user);
-      setSelectedUser(user);
-      setSelectedPost(null);
-      setPosts([]);
-      setError(false);
-      setLoading(true);
-
-      client
-        .get<Post[]>(`/posts?userId=${user.id}`)
-        .then(data => {
-          setPosts(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setError(true);
-          setLoading(false);
-        });
-    }
-
-    document.addEventListener('userSelected', onUserSelected as EventListener);
-
-    return () =>
-      document.removeEventListener(
-        'userSelected',
-        onUserSelected as EventListener,
-      );
+    client.get<User[]>('/users').then(data => setUsers(data));
   }, []);
+
+  const handleUserSelect = (user: User) => {
+    setSelectedUser(user);
+    setSelectedPost(null);
+    setPosts([]);
+    setError(false);
+    setLoading(true);
+
+    client
+      .get<Post[]>(`/posts?userId=${user.id}`)
+      .then(data => {
+        setPosts(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
+  };
 
   const handlePostSelect = (post: Post) => {
     if (selectedPost && selectedPost.id === post.id) {
@@ -70,7 +61,11 @@ export const App: React.FC = () => {
           <div className="tile is-parent">
             <div className="tile is-child box is-success">
               <div className="block">
-                <UserSelector />
+                <UserSelector
+                  users={users}
+                  selectedUserId={selectedUser ? selectedUser.id : null}
+                  onSelect={handleUserSelect}
+                />
               </div>
 
               <div className="block" data-cy="MainContent">

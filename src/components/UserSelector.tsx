@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { User } from '../types/User';
-import { client } from '../utils/fetchClient';
 
-export const UserSelector: React.FC = () => {
+type Props = {
+  users: User[];
+  selectedUserId: number | null;
+  onSelect: (user: User) => void;
+};
+
+export const UserSelector: React.FC<Props> = ({
+  users,
+  selectedUserId,
+  onSelect,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [users, setUsers] = useState([] as User[]);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    client.get<User[]>('/users').then((data: User[]) => setUsers(data));
-  }, []);
 
   useEffect(() => {
     function onDocumentClick(e: MouseEvent) {
@@ -29,27 +32,6 @@ export const UserSelector: React.FC = () => {
   }, []);
 
   const handleToggle = () => setIsOpen(prev => !prev);
-
-  const handleSelect = (user: User) => {
-    const isSame = user.id === selectedUserId;
-
-    setSelectedUserId(user.id);
-    setIsOpen(false);
-
-    // Dispatch a custom event so other components may react if needed
-    try {
-      const ev = new CustomEvent('userSelected', { detail: user });
-
-      document.dispatchEvent(ev);
-    } catch (err) {
-      // ignore on older browsers in tests
-    }
-
-    if (isSame) {
-      // If the same user was clicked while open, just close the dropdown
-      setIsOpen(false);
-    }
-  };
 
   return (
     <div
@@ -88,7 +70,8 @@ export const UserSelector: React.FC = () => {
               className={`dropdown-item ${selectedUserId === user.id ? 'is-active' : ''}`}
               onClick={e => {
                 e.preventDefault();
-                handleSelect(user);
+                setIsOpen(false);
+                onSelect(user);
               }}
             >
               {user.name}

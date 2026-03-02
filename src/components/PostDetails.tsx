@@ -36,11 +36,19 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
   }, [post]);
 
   const handleDelete = (id: number) => {
-    // optimistic update
-    setComments(prev => (prev ? prev.filter(c => c.id !== id) : prev));
+    // optimistic update with rollback on failure
+    const prev = comments;
+
+    setComments(previousComments =>
+      previousComments
+        ? previousComments.filter(c => c.id !== id)
+        : previousComments,
+    );
 
     client.delete(`/comments/${id}`).catch(() => {
-      // ignore errors for now (tests only check request was sent)
+      // restore previous comments and show error notification
+      setComments(prev);
+      setError(true);
     });
   };
 
@@ -53,7 +61,8 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
         setComments(prev => (prev ? [...prev, created] : [created]));
       })
       .catch(() => {
-        // if error, do nothing special here
+        // show error notification when adding comment fails
+        setError(true);
       })
       .finally(() => setSubmitting(false));
   };
